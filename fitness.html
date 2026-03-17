@@ -11,7 +11,6 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
         body {
             background: #121212;
             min-height: 100vh;
@@ -20,82 +19,72 @@
             align-items: center;
             padding: 16px;
         }
-
-        .tracker-container {
+        .container {
             background: #1e1e1e;
             border-radius: 32px;
-            padding: 40px 30px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7), 0 0 0 1px #333 inset;
+            padding: 30px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.7), inset 0 0 0 1px #333;
             width: 100%;
             max-width: 400px;
         }
-
-        .title {
+        h2 {
             color: #aaa;
             text-transform: uppercase;
-            letter-spacing: 4px;
+            letter-spacing: 2px;
             font-weight: 400;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             text-align: center;
             font-size: 1.2rem;
         }
-
         .input-group {
             margin-bottom: 20px;
         }
-
         .label {
             display: block;
             color: #bbb;
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
-
         .input-field {
             width: 100%;
             background: #0f0f0f;
             border: 1px solid #444;
             border-radius: 60px;
             padding: 14px 20px;
-            font-size: 1.2rem;
             color: #fff;
+            font-size: 1.2rem;
             outline: none;
             transition: border 0.2s;
         }
-
         .input-field:focus {
             border-color: #00ff99;
-            box-shadow: 0 0 10px #00ff9966;
+            box-shadow: 0 0 8px #00ff9966;
         }
-
-        .track-btn {
+        .btn {
             width: 100%;
             background: #2a2a2a;
             border: none;
             border-radius: 60px;
             padding: 16px 20px;
-            font-size: 1.4rem;
-            font-weight: 600;
             color: #e0e0e0;
+            font-size: 1.3rem;
+            font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 5px 0 #0f0f0f, 0 8px 12px rgba(0, 0, 0, 0.5);
-            transition: all 0.1s ease;
+            box-shadow: 0 4px 0 #0f0f0f;
+            transition: 0.1s;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 20px 0 30px;
+            letter-spacing: 1px;
+            margin: 10px 0 25px;
         }
-
-        .track-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px 0 #0f0f0f, 0 5px 8px rgba(0, 0, 0, 0.5);
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #0f0f0f;
         }
-
-        .track-btn:hover {
+        .btn:hover {
             background: #3a3a3a;
         }
-
         .result-box {
             background: #0f0f0f;
             border-radius: 60px;
@@ -103,44 +92,42 @@
             text-align: center;
             border: 1px solid #444;
         }
-
         .result-value {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
             color: #00ff99;
-            text-shadow: 0 0 10px #00ff9966;
+            text-shadow: 0 0 8px #00ff9966;
             word-break: break-word;
         }
-
-        .error-message {
+        .error {
             color: #ff6666;
             font-size: 0.9rem;
+            text-align: center;
             margin-top: 8px;
             min-height: 20px;
-            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="tracker-container">
-        <div class="title">Fitness Tracker</div>
+    <div class="container">
+        <h2>Fitness Tracker</h2>
 
         <div class="input-group">
-            <label class="label">Шаги (steps)</label>
+            <label class="label">Steps</label>
             <input type="number" id="steps" class="input-field" value="0" min="0" step="1">
         </div>
 
         <div class="input-group">
-            <label class="label">Дистанция (км)</label>
+            <label class="label">Distance (km)</label>
             <input type="number" id="distance" class="input-field" value="0.0" min="0" step="0.1">
         </div>
 
-        <button class="track-btn" id="trackBtn">⟫ Рассчитать</button>
+        <button class="btn" id="trackBtn">Calculate</button>
 
         <div class="result-box">
-            <div class="result-value" id="result">0.00 ккал</div>
+            <div class="result-value" id="result">0.00 kcal</div>
         </div>
-        <div class="error-message" id="error"></div>
+        <div class="error" id="error"></div>
     </div>
 
     <script>
@@ -151,52 +138,42 @@
             const resultDiv = document.getElementById('result');
             const errorDiv = document.getElementById('error');
 
-            // Коэффициенты (как в Java)
-            const CALORIES_PER_STEP = 0.04;
-            const CALORIES_PER_KM = 0.1;
+            const CAL_PER_STEP = 0.04;
+            const CAL_PER_KM = 0.1;
 
-            function calculateCalories(steps, distance) {
-                return (steps * CALORIES_PER_STEP) + (distance * CALORIES_PER_KM);
-            }
-
-            function formatNumber(value) {
-                return value.toFixed(2);
-            }
-
-            function handleTrack() {
+            function calculate() {
                 const stepsStr = stepsInput.value.trim();
-                const distanceStr = distanceInput.value.trim();
+                const distStr = distanceInput.value.trim();
 
-                if (stepsStr === '' || distanceStr === '') {
-                    errorDiv.textContent = 'Заполните оба поля!';
-                    resultDiv.textContent = '0.00 ккал';
+                if (stepsStr === '' || distStr === '') {
+                    errorDiv.textContent = 'Fill in both fields';
+                    resultDiv.textContent = '0.00 kcal';
                     return;
                 }
 
                 const steps = parseInt(stepsStr, 10);
-                const distance = parseFloat(distanceStr);
+                const dist = parseFloat(distStr);
 
-                if (isNaN(steps) || isNaN(distance) || steps < 0 || distance < 0) {
-                    errorDiv.textContent = 'Введите корректные положительные числа!';
-                    resultDiv.textContent = '0.00 ккал';
+                if (isNaN(steps) || isNaN(dist) || steps < 0 || dist < 0) {
+                    errorDiv.textContent = 'Invalid positive numbers';
+                    resultDiv.textContent = '0.00 kcal';
                     return;
                 }
 
-                const calories = calculateCalories(steps, distance);
-                resultDiv.textContent = formatNumber(calories) + ' ккал';
+                const calories = (steps * CAL_PER_STEP) + (dist * CAL_PER_KM);
+                resultDiv.textContent = calories.toFixed(2) + ' kcal';
                 errorDiv.textContent = '';
             }
 
-            trackBtn.addEventListener('click', handleTrack);
-            // Разрешить ввод с клавиатуры (Enter)
+            trackBtn.addEventListener('click', calculate);
             [stepsInput, distanceInput].forEach(input => {
                 input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') handleTrack();
+                    if (e.key === 'Enter') calculate();
                 });
             });
 
-            // Начальное состояние
-            resultDiv.textContent = '0.00 ккал';
+            // начальное отображение
+            calculate();
         })();
     </script>
 </body>
